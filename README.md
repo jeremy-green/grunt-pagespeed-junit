@@ -51,6 +51,7 @@ Your API key identifies your project and provides you with API access, quota, an
 
 #### threshold
 Type: `int`
+Default value: `60`
 
 The score threshold in which to fail the task.
 
