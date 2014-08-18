@@ -59,10 +59,10 @@ Type: `Number`
 
 The rule threshold in which to fail the individual rules.
 
-#### ruleThreshold
-Type: `Number`
+#### locale
+Type: `String`
 
-The rule threshold in which to fail the individual rules.
+The locale that results should be generated in.
 
 #### rule
 Type: `Array`
