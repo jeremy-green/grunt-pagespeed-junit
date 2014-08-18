@@ -64,11 +64,6 @@ Type: `Number`
 
 The rule threshold in which to fail the individual rules.
 
-#### locale
-Type: `String`
-
-The locale that results should be generated in.
-
 #### rule
 Type: `Array`
 
