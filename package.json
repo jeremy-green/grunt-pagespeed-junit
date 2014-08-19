@@ -27,10 +27,12 @@
   "scripts": {
     "test": "grunt test"
   },
+  "dependencies": {
+    "request": "^2.40.0"
+  },
   "devDependencies": {
     "grunt": "~0.4.4",
-    "grunt-contrib-jshint": "^0.9.2",
-    "request": "^2.40.0"
+    "grunt-contrib-jshint": "^0.9.2"
   },
   "peerDependencies": {
     "grunt": "~0.4.4"
