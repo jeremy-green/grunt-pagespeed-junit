@@ -34,15 +34,15 @@ grunt.initConfig({
 
 ### Options
 
-#### url
-Type: `String`
+#### urls
+Type: `Array`
 
-The URL of the page for which the PageSpeed Insights API should generate results.
+A list of URL's for which the PageSpeed Insights API should generate results.
 
-#### dest
-Type: `String`
+#### reports
+Type: `Array`
 
-The output destination.
+The output destination for each URL.
 
 #### key
 Type: `String`
@@ -81,9 +81,9 @@ The strategy to use when analyzing the page.
 grunt.initConfig({
   pagespeed_junit: {
     options: {
-      url: 'http://www.example.com',
+      urls: ['http://www.example.com'],
       key: '<API_KEY>',
-      dest: 'results.xml',
+      reports: ['results.xml'],
       threshold: 10,
       ruleThreshold: 2
     }
