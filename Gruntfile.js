@@ -23,9 +23,9 @@ module.exports = function (grunt) {
     },
     pagespeed_junit: {
       options: {
-        url: 'http://www.example.com',
+        urls: ['http://www.example.com'],
+        reports: ['report.xml'],
         key: '<API_KEY>',
-        dest: 'result.xml',
         threshold: 10,
         ruleThreshold: 2
       }
