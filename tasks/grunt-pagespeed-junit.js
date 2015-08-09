@@ -17,7 +17,8 @@ module.exports = function (grunt) {
 
     var request = require('request'),
         querystring = require('querystring'),
-        async = require('async');
+        async = require('async'),
+        builder = require('xmlbuilder');
 
     var reports = options.reports || [];
     var report = options.report || options.dest;
@@ -68,12 +69,19 @@ module.exports = function (grunt) {
           var b = JSON.parse(body);
           var stats = b.pageStats;
           var results = b.formattedResults;
+          var ruleResults = results.ruleResults;
+          var xml = builder.create('testsuites', {
+            failures: '%%FAILURES%%',
+            name: b.title,
+            tests: Object.keys(ruleResults).length
+          })
+          .ele('testsuite', {
+            failures: '%%FAILURES%%',
+            name: b.title,
+            tests: Object.keys(ruleResults).length
+          })
+          .ele('properties');
 
-          var output = '<?xml version="1.0" encoding="UTF-8"?>';
-          output += '<testsuites failures="%%FAILURES%%" name="'+b.title+'" tests="'+Object.keys(results.ruleResults).length+'">';
-          output += '<testsuite failures="%%FAILURES%%" id="'+b.id+'" name="'+b.title+'" tests="'+Object.keys(results.ruleResults).length+'">';
-
-          output += '<properties>';
           [
             'kind',
             'id',
@@ -81,30 +89,41 @@ module.exports = function (grunt) {
             'title',
             'score'
           ].forEach(function(element, index, array) {
-            output += '<property name="'+element+'" value="'+b[element]+'"/>';
+            xml = xml.ele('property', {
+              name: element,
+              value: b[element]
+            }).up();
           });
-          output += '</properties>';
 
-          var ruleResults = results.ruleResults;
+          xml = xml.up();
+
           Object.keys(ruleResults).forEach(function(key, index) {
             var val = ruleResults[key];
             var blocks = val.urlBlocks;
-            output += '<testcase assertions="1" classname="'+val.localizedRuleName+'" name="'+val.localizedRuleName+'" status="'+val.ruleImpact+'" time="">';
 
-            if (options.ruleThreshold !== undefined && parseFloat(val.ruleImpact) > options.ruleThreshold) {
+            var tc = xml.ele('testcase', {
+              assertions: 1,
+              classname: val.localizedRuleName,
+              name: val.localizedRuleName,
+              status: val.ruleImpact,
+              time: ''
+            });
+
+            if (typeof options.ruleThreshold !== 'undefined' && parseFloat(val.ruleImpact) > options.ruleThreshold) {
               failures++;
-              output += '<failure message="Rule exceeds threshold."/>';
+              tc.ele('failure', {
+                message: 'Rule exceeds threshold.'
+              });
             }
 
-            output += '<system-out>';
-            output += 'Rule Impact: ' + val.ruleImpact + '\n';
+            var impact = 'Rule Impact: ' + val.ruleImpact + '\n';
 
             blocks.forEach(function(element) {
 
               var format = element.header.format;
               var args = element.header.args;
 
-              if (args !== undefined && args.length > 0) {
+              if (typeof args !== 'undefined' && args.length > 0) {
                 args.forEach(function(arg, i) {
                   arg.value = arg.value.replace(/&/g, '&amp;')
                                        .replace(/"/g, '&quot;')
@@ -115,13 +134,13 @@ module.exports = function (grunt) {
                   if (arg.type !== 'HYPERLINK') {
                     format = format.replace('$' + (i+1).toString(), arg.value);
                   } else {
-                    format += '[  ' + args[0].value + ' ]';
+                    format += ' [' + args[0].value + ']';
                   }
                 });
-                output += format + '\n';
+                impact += format + '\n';
               }
 
-              if (element.urls !== undefined) {
+              if (typeof element.urls !== 'undefined') {
                 args = element.urls;
                 args.forEach(function(arg, i) {
                   format = arg.result.format;
@@ -135,7 +154,7 @@ module.exports = function (grunt) {
 
                     format = format.replace('$' + (iterator+1).toString(), elem.value);
                   });
-                  output += format + '\n';
+                  impact += format + '\n';
 
                 });
 
@@ -143,15 +162,12 @@ module.exports = function (grunt) {
 
             });
 
-            output += '</system-out>';
-            output += '</testcase>';
+            tc.ele('system-out', {}, impact);
+            xml = tc.up();
+
           });
 
-          output += '</testsuite>';
-          output += '</testsuites>';
-
-          output = output.replace(/%%FAILURES%%/g, failures.toString());
-
+          var output = xml.end({pretty: true}).replace(/%%FAILURES%%/g, failures.toString());
           grunt.file.write(page.report, output);
           grunt.log.ok('File: ' + page.report + ' created.');
 
