@@ -93,8 +93,6 @@ grunt.initConfig({
 
 ###TODO
 
-* Different file output
-* Refactor task js
 * ruleThreshold per rule
 
 

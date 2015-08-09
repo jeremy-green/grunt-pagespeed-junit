@@ -2,7 +2,7 @@
  * grunt-pagespeed-junit
  * https://github.com/jeremy-green/grunt-pagespeed-junit
  *
- * Copyright (c) 2014 Jeremy Green
+ * Copyright (c) 2015 Jeremy Green
  * Licensed under the MIT license.
  */
 'use strict';
